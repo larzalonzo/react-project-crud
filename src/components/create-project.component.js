@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
+import { useState } from "react";
 
 export default class CreateProject extends Component {
   constructor(props) {
@@ -17,9 +18,9 @@ export default class CreateProject extends Component {
     this.state = {
       name: "",
       deadline: "",
-      document: "",
     };
   }
+  // const [file, setfile] = useState();
 
   onChangeProjectName(e) {
     this.setState({ name: e.target.value });
@@ -30,16 +31,33 @@ export default class CreateProject extends Component {
   }
 
   onChangeProjectDocument(e) {
-    this.setState({ document: e.target.value });
+    // this.setState({ document: e.target.value });
+    setfile(e.target.files[0]);
   }
 
   onSubmit(e) {
     e.preventDefault();
 
+    const formData = new FormData();
+    formData.append("document", file);
+    const config = {
+      Headers: {
+        "content-type": "multipart/form-data",
+      },
+    };
+    const url = "http://localhost:4000/projects/upload";
+    axios
+      .post(url, formData, config)
+      .then((response) => {
+        alert("File Uploaded Successfully!!!");
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+
     const projectObject = {
       name: this.state.name,
       deadline: this.state.deadline,
-      document: this.state.document,
     };
     axios
       .post("http://localhost:4000/projects/create-project", projectObject)
@@ -74,8 +92,8 @@ export default class CreateProject extends Component {
             <Form.Label>Document</Form.Label>
             <Form.Control
               type="file"
-              value={this.state.document}
               onChange={this.onChangeProjectDocument}
+              name="document"
             />
           </Form.Group>
 
